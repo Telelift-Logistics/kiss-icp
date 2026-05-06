@@ -222,38 +222,33 @@ void OdometryServer::PublishOdometry(const Sophus::SE3d &kiss_pose,
     odom_msg.pose.covariance[35] = orientation_covariance_;
 
     if (last_odom_msg_.has_value()) {
-        rclcpp::Duration duration = rclcpp::Time(header.stamp) - rclcpp::Time(last_odom_msg_->header.stamp);
+        rclcpp::Duration duration =
+            rclcpp::Time(header.stamp) - rclcpp::Time(last_odom_msg_->header.stamp);
         double dt = duration.seconds();
         if (dt <= 0) return;
-    
+
         const auto &curr_pos = odom_msg.pose.pose.position;
         const auto &last_pos = last_odom_msg_->pose.pose.position;
-    
-        tf2::Vector3 odom_frame_velocity(
-            (curr_pos.x - last_pos.x) / dt,
-            (curr_pos.y - last_pos.y) / dt,
-            (curr_pos.z - last_pos.z) / dt
-        );
-        
+
+        tf2::Vector3 odom_frame_velocity((curr_pos.x - last_pos.x) / dt,
+                                         (curr_pos.y - last_pos.y) / dt,
+                                         (curr_pos.z - last_pos.z) / dt);
+
         tf2::Quaternion q_curr, q_last;
         tf2::fromMsg(odom_msg.pose.pose.orientation, q_curr);
         tf2::fromMsg(last_odom_msg_->pose.pose.orientation, q_last);
 
         q_curr.normalize();
         q_last.normalize();
-    
+
         tf2::Vector3 body_velocity = tf2::quatRotate(q_curr.inverse(), odom_frame_velocity);
-        
+
         odom_msg.twist.twist.linear.x = body_velocity.x();
         odom_msg.twist.twist.linear.y = body_velocity.y();
         odom_msg.twist.twist.linear.z = body_velocity.z();
-    
-        tf2::Quaternion q_dot(
-            (q_curr.x() - q_last.x()) / dt,
-            (q_curr.y() - q_last.y()) / dt,
-            (q_curr.z() - q_last.z()) / dt,
-            (q_curr.w() - q_last.w()) / dt
-        );
+
+        tf2::Quaternion q_dot((q_curr.x() - q_last.x()) / dt, (q_curr.y() - q_last.y()) / dt,
+                              (q_curr.z() - q_last.z()) / dt, (q_curr.w() - q_last.w()) / dt);
 
         // Body-frame angular velocity: ω = 2 * q_curr^(-1) * q_dot
         tf2::Quaternion omega_q = q_curr.inverse() * q_dot;
