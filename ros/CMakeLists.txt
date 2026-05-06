@@ -46,6 +46,8 @@ find_package(rclcpp_components REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(std_srvs REQUIRED)
 
@@ -59,6 +61,8 @@ target_link_libraries(
           rclcpp::rclcpp
           rclcpp_components::component
           rcutils::rcutils
+          tf2::tf2
+          tf2_geometry_msgs::tf2_geometry_msgs
           tf2_ros::tf2_ros
           ${geometry_msgs_TARGETS}
           ${nav_msgs_TARGETS}
