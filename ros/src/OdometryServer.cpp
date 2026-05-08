@@ -253,7 +253,7 @@ void OdometryServer::PublishOdometry(const Sophus::SE3d &kiss_pose,
                                     (q_curr.z() - q_last.z()) / dt, (q_curr.w() - q_last.w()) / dt);
 
         // Body-frame angular velocity: ω = 2 * q_curr^(-1) * q_dot
-        const tf2::Quaternion omega_q = 2.0 * (q_curr.inverse() * q_dot);
+        const tf2::Quaternion omega_q = (q_curr.inverse() * q_dot) * 2.0;
 
         odom_msg.twist.twist.angular.x = omega_q.x();
         odom_msg.twist.twist.angular.y = omega_q.y();
