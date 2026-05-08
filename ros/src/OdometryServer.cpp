@@ -225,8 +225,10 @@ void OdometryServer::PublishOdometry(const Sophus::SE3d &kiss_pose,
         const rclcpp::Duration duration =
             rclcpp::Time(header.stamp) - rclcpp::Time(last_odom_msg_->header.stamp);
         const double dt = duration.seconds();
-        if (dt <= 0) return;
-
+        if (dt <= 0) {
+            RCLCPP_WARN(this->get_logger(), "Invalid dt (%.4fs): Skipping odom msg.", dt);
+            return;
+        }
         const auto &curr_pos = odom_msg.pose.pose.position;
         const auto &last_pos = last_odom_msg_->pose.pose.position;
 
